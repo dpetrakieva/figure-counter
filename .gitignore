@@ -1,0 +1,17 @@
+# Build output
+build/
+out/
+
+# IDE and editor files
+.vs/
+.vscode/
+.idea/
+CMakeSettings.json
+CMakeUserPresets.json
+
+# Compiled files
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.o
