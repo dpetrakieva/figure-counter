@@ -11,4 +11,15 @@ else()
     add_compile_options(-Wall -Wextra)
 endif()
 
-add_executable(figure_counter main.cpp)
+# The logic, as a library used by both programs below.
+add_library(figure_counter FigureCounter.cpp)
+
+# The program: prints the result for the example from the task.
+add_executable(figure_counter_app main.cpp)
+target_link_libraries(figure_counter_app PRIVATE figure_counter)
+
+# The tests: a separate program, run with ctest.
+enable_testing()
+add_executable(figure_counter_tests tests.cpp)
+target_link_libraries(figure_counter_tests PRIVATE figure_counter)
+add_test(NAME figure_counter_tests COMMAND figure_counter_tests)
