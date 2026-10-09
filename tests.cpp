@@ -1,4 +1,5 @@
 #include "FigureCounter.h"
+#include "Grid.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -15,23 +16,48 @@ struct TestCase
     std::size_t expected;
 };
 
-// One invalid input: a name and a grid that must be rejected.
-struct InvalidCase
+// Makes a grid from rows written one under another. 1 = marked cell.
+// All rows must have the same length.
+Grid makeGrid(const std::vector<std::vector<bool>>& rows)
 {
-    std::string name;
-    Grid grid;
-};
+    if (rows.empty())
+    {
+        return Grid(0, 0);
+    }
+
+    std::vector<bool> cells;
+
+    for (const std::vector<bool>& row : rows)
+    {
+        for (bool cell : row)
+        {
+            cells.push_back(cell);
+        }
+    }
+
+    return Grid(static_cast<int>(rows.size()), static_cast<int>(rows[0].size()), cells);
+}
 
 // Makes a grid where every cell is marked.
 Grid makeFullGrid(int rows, int cols)
 {
-    return Grid(rows, std::vector<bool>(cols, true));
+    Grid grid(rows, cols);
+
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            grid.mark(row, col);
+        }
+    }
+
+    return grid;
 }
 
 // Makes a grid like a chessboard. Marked cells touch only diagonally.
 Grid makeCheckerboardGrid(int rows, int cols)
 {
-    Grid grid(rows, std::vector<bool>(cols, false));
+    Grid grid(rows, cols);
 
     for (int row = 0; row < rows; row++)
     {
@@ -39,7 +65,7 @@ Grid makeCheckerboardGrid(int rows, int cols)
         {
             if ((row + col) % 2 == 0)
             {
-                grid[row][col] = true;
+                grid.mark(row, col);
             }
         }
     }
@@ -52,48 +78,48 @@ int runCountTests()
 {
     const std::vector<TestCase> testCases =
     {
-        { "task example",                   { {1, 0, 0, 0, 0},
-                                              {1, 0, 1, 1, 0},
-                                              {0, 1, 0, 1, 0},
-                                              {0, 1, 1, 1, 0},
-                                              {0, 0, 0, 0, 1} }, 3 },
-        { "empty grid",                     { },                 0 },
-        { "nothing marked",                 { {0, 0, 0},
-                                              {0, 0, 0} },       0 },
-        { "everything marked",              { {1, 1, 1},
-                                              {1, 1, 1} },       1 },
-        { "single marked cell",             { {1} },             1 },
-        { "single unmarked cell",           { {0} },             0 },
-        { "two cells touching by a vertex", { {1, 0},
-                                              {0, 1} },          2 },
-        { "checkerboard",                   { {1, 0, 1},
-                                              {0, 1, 0},
-                                              {1, 0, 1} },       5 },
-        { "single row",                     { {1, 1, 0, 1} },    2 },
-        { "single column",                  { {1},
-                                              {0},
-                                              {1},
-                                              {1} },             2 },
-        { "U shape is one figure",          { {1, 0, 1},
-                                              {1, 0, 1},
-                                              {1, 1, 1} },       1 },
-        { "rows with no cells",             { {},
-                                              {} },              0 },
-        { "ring with a hole is one figure", { {1, 1, 1},
-                                              {1, 0, 1},
-                                              {1, 1, 1} },       1 },
-        { "figure inside a ring",           { {1, 1, 1, 1, 1},
-                                              {1, 0, 0, 0, 1},
-                                              {1, 0, 1, 0, 1},
-                                              {1, 0, 0, 0, 1},
-                                              {1, 1, 1, 1, 1} }, 2 },
-        { "wide grid, two separate cells",  { {0, 0, 1, 0, 0},
-                                              {1, 0, 0, 0, 0} }, 2 },
-        { "tall grid, two separate cells",  { {0, 1},
-                                              {0, 0},
-                                              {1, 0},
-                                              {0, 0},
-                                              {0, 0} },          2 },
+        { "task example",                   makeGrid({ {1, 0, 0, 0, 0},
+                                                       {1, 0, 1, 1, 0},
+                                                       {0, 1, 0, 1, 0},
+                                                       {0, 1, 1, 1, 0},
+                                                       {0, 0, 0, 0, 1} }), 3 },
+        { "empty grid",                     makeGrid({ }),                 0 },
+        { "nothing marked",                 makeGrid({ {0, 0, 0},
+                                                       {0, 0, 0} }),       0 },
+        { "everything marked",              makeGrid({ {1, 1, 1},
+                                                       {1, 1, 1} }),       1 },
+        { "single marked cell",             makeGrid({ {1} }),             1 },
+        { "single unmarked cell",           makeGrid({ {0} }),             0 },
+        { "two cells touching by a vertex", makeGrid({ {1, 0},
+                                                       {0, 1} }),          2 },
+        { "checkerboard",                   makeGrid({ {1, 0, 1},
+                                                       {0, 1, 0},
+                                                       {1, 0, 1} }),       5 },
+        { "single row",                     makeGrid({ {1, 1, 0, 1} }),    2 },
+        { "single column",                  makeGrid({ {1},
+                                                       {0},
+                                                       {1},
+                                                       {1} }),             2 },
+        { "U shape is one figure",          makeGrid({ {1, 0, 1},
+                                                       {1, 0, 1},
+                                                       {1, 1, 1} }),       1 },
+        { "rows with no cells",             makeGrid({ {},
+                                                       {} }),              0 },
+        { "ring with a hole is one figure", makeGrid({ {1, 1, 1},
+                                                       {1, 0, 1},
+                                                       {1, 1, 1} }),       1 },
+        { "figure inside a ring",           makeGrid({ {1, 1, 1, 1, 1},
+                                                       {1, 0, 0, 0, 1},
+                                                       {1, 0, 1, 0, 1},
+                                                       {1, 0, 0, 0, 1},
+                                                       {1, 1, 1, 1, 1} }), 2 },
+        { "wide grid, two separate cells",  makeGrid({ {0, 0, 1, 0, 0},
+                                                       {1, 0, 0, 0, 0} }), 2 },
+        { "tall grid, two separate cells",  makeGrid({ {0, 1},
+                                                       {0, 0},
+                                                       {1, 0},
+                                                       {0, 0},
+                                                       {0, 0} }),          2 },
 
         // Large grids: 25 million cells each, in different shapes.
         { "large, everything marked",       makeFullGrid(5000, 5000),         1 },
@@ -125,34 +151,53 @@ int runCountTests()
     return failedCount;
 }
 
-// Checks that invalid input is rejected. Returns the number of failed tests.
-int runInvalidInputTests()
+// Checks what a grid does with wrong arguments.
+// Returns the number of failed tests.
+int runGridTests()
 {
-    const std::vector<InvalidCase> testCases =
-    {
-        { "second row is shorter", { {1, 0, 1},
-                                     {1, 0} } },
-        { "second row is longer",  { {1, 0},
-                                     {1, 0, 1} } },
-        { "first row is empty",    { {},
-                                     {1} } },
-    };
-
     int failedCount = 0;
 
-    for (const InvalidCase& testCase : testCases)
-    {
-        try
-        {
-            countFigures(testCase.grid);
+    // A grid of 2 rows and 3 columns needs 6 cells. Here it gets only 5.
+    const std::vector<bool> fiveCells = {1, 0, 1, 0, 1};
 
-            std::cout << "FAIL: " << testCase.name << " (no exception)" << std::endl;
-            failedCount++;
-        }
-        catch (const std::invalid_argument&)
-        {
-            std::cout << "PASS: " << testCase.name << std::endl;
-        }
+    try
+    {
+        Grid(2, 3, fiveCells);
+
+        std::cout << "FAIL: wrong number of cells (no exception)" << std::endl;
+        failedCount++;
+    }
+    catch (const std::invalid_argument&)
+    {
+        std::cout << "PASS: wrong number of cells" << std::endl;
+    }
+
+    // Every cell is marked, so "not marked" can only come from the position check.
+    const Grid grid = makeFullGrid(2, 3);
+
+    // A cell outside the grid is not marked.
+    if (!grid.isMarked(-1, 0) && !grid.isMarked(2, 0) && !grid.isMarked(1, -1) && !grid.isMarked(0, 3))
+    {
+        std::cout << "PASS: cell outside the grid is not marked" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAIL: cell outside the grid is not marked" << std::endl;
+        failedCount++;
+    }
+
+    // A cell outside the grid cannot be marked.
+    try
+    {
+        Grid emptyGrid(2, 3);
+        emptyGrid.mark(2, 0);
+
+        std::cout << "FAIL: marking outside the grid (no exception)" << std::endl;
+        failedCount++;
+    }
+    catch (const std::out_of_range&)
+    {
+        std::cout << "PASS: marking outside the grid" << std::endl;
     }
 
     return failedCount;
@@ -160,7 +205,7 @@ int runInvalidInputTests()
 
 int main()
 {
-    const int failedCount = runCountTests() + runInvalidInputTests();
+    const int failedCount = runCountTests() + runGridTests();
 
     return (failedCount == 0) ? 0 : 1;
 }

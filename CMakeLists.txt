@@ -12,7 +12,7 @@ else()
 endif()
 
 # The logic, as a library used by both programs below.
-add_library(figure_counter FigureCounter.cpp)
+add_library(figure_counter FigureCounter.cpp Grid.cpp)
 
 # The program: prints the result for the example from the task.
 add_executable(figure_counter_app main.cpp)

@@ -7,14 +7,14 @@ using namespace figures;
 int main()
 {
     // The example from the task statement; expected result: 3 figures.
-    const Grid grid =
+    const Grid grid(5, 5,
     {
-        {1, 0, 0, 0, 0},
-        {1, 0, 1, 1, 0},
-        {0, 1, 0, 1, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 0, 0, 1}
-    };
+        1, 0, 0, 0, 0,
+        1, 0, 1, 1, 0,
+        0, 1, 0, 1, 0,
+        0, 1, 1, 1, 0,
+        0, 0, 0, 0, 1
+    });
 
     const std::size_t count = countFigures(grid);
 
