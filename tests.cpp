@@ -22,6 +22,31 @@ struct InvalidCase
     Grid grid;
 };
 
+// Makes a grid where every cell is marked.
+Grid makeFullGrid(int rows, int cols)
+{
+    return Grid(rows, std::vector<bool>(cols, true));
+}
+
+// Makes a grid like a chessboard. Marked cells touch only diagonally.
+Grid makeCheckerboardGrid(int rows, int cols)
+{
+    Grid grid(rows, std::vector<bool>(cols, false));
+
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            if ((row + col) % 2 == 0)
+            {
+                grid[row][col] = true;
+            }
+        }
+    }
+
+    return grid;
+}
+
 // Checks the number of figures for each grid. Returns the number of failed tests.
 int runCountTests()
 {
@@ -69,6 +94,12 @@ int runCountTests()
                                               {1, 0},
                                               {0, 0},
                                               {0, 0} },          2 },
+
+        // Large grids: 25 million cells each, in different shapes.
+        { "large, everything marked",       makeFullGrid(5000, 5000),         1 },
+        { "large, checkerboard",            makeCheckerboardGrid(5000, 5000), 5000 * 5000 / 2 },
+        { "large, one column",              makeFullGrid(25000000, 1),        1 },
+        { "large, one row",                 makeFullGrid(1, 25000000),        1 },
     };
 
     int failedCount = 0;

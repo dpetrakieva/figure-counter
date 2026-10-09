@@ -1,5 +1,6 @@
 #include "FigureCounter.h"
 
+#include <stack>
 #include <stdexcept>
 
 namespace figures
@@ -8,6 +9,13 @@ namespace figures
     {
         // One step to a neighbor cell.
         struct Offset
+        {
+            int row;
+            int col;
+        };
+
+        // A cell position in the grid.
+        struct Cell
         {
             int row;
             int col;
@@ -61,14 +69,26 @@ namespace figures
 
             grid[row][col] = false;
 
-            for (const Offset& offset : kNeighborOffsets)
-            {
-                const int neighborRow = row + offset.row;
-                const int neighborCol = col + offset.col;
+            // Cells that are found but not processed yet.
+            std::stack<Cell> pending;
+            pending.push(Cell{row, col});
 
-                if (isInside(neighborRow, neighborCol, rows, cols) && grid[neighborRow][neighborCol])
+            while (!pending.empty())
+            {
+                const Cell cell = pending.top();
+                pending.pop();
+
+                for (const Offset& offset : kNeighborOffsets)
                 {
-                    visitFigure(grid, neighborRow, neighborCol);
+                    const int neighborRow = cell.row + offset.row;
+                    const int neighborCol = cell.col + offset.col;
+
+                    if (isInside(neighborRow, neighborCol, rows, cols) && grid[neighborRow][neighborCol])
+                    {
+                        grid[neighborRow][neighborCol] = false;
+
+                        pending.push(Cell{neighborRow, neighborCol});
+                    }
                 }
             }
         }
