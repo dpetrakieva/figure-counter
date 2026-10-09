@@ -1,6 +1,6 @@
 #include "FigureCounter.h"
 
-#include <stack>
+#include <queue>
 #include <stdexcept>
 
 namespace figures
@@ -70,12 +70,12 @@ namespace figures
             grid[row][col] = false;
 
             // Cells that are found but not processed yet.
-            std::stack<Cell> pending;
+            std::queue<Cell> pending;
             pending.push(Cell{row, col});
 
             while (!pending.empty())
             {
-                const Cell cell = pending.top();
+                const Cell cell = pending.front();
                 pending.pop();
 
                 for (const Offset& offset : kNeighborOffsets)

@@ -16,7 +16,7 @@ namespace figures
     //
     // Throws std::invalid_argument if the rows have different lengths.
     // Time: O(rows * cols).
-    // Memory: a stack of pending cells.
+    // Memory: a queue of pending cells.
     std::size_t countFigures(Grid grid);
 
 } // namespace figures
