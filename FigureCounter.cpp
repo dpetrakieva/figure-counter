@@ -31,12 +31,11 @@ namespace figures
 
         // Visits all cells of one figure, starting from (row, col).
         // A visited cell is unmarked, so it is never visited twice.
-        void visitFigure(Grid& grid, int row, int col)
+        // The queue is made once by the caller and is empty again at the end.
+        void visitFigure(Grid& grid, std::queue<Cell>& pending, int row, int col)
         {
             grid.unmark(row, col);
 
-            // Cells that are found but not processed yet.
-            std::queue<Cell> pending;
             pending.push(Cell{row, col});
 
             while (!pending.empty())
@@ -64,6 +63,10 @@ namespace figures
     {
         std::size_t count = 0;
 
+        // One queue for all figures. Making a new one for every figure is slow
+        // when there are millions of small figures.
+        std::queue<Cell> pending;
+
         for (int row = 0; row < grid.rows(); row++)
         {
             for (int col = 0; col < grid.cols(); col++)
@@ -72,7 +75,7 @@ namespace figures
                 // The cells of the figures counted so far are already unmarked.
                 if (grid.isMarked(row, col))
                 {
-                    visitFigure(grid, row, col);
+                    visitFigure(grid, pending, row, col);
                     count++;
                 }
             }
