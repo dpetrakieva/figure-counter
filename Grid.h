@@ -16,8 +16,10 @@ namespace figures
         Grid(int rows, int cols);
 
         // Makes a grid from a list of cells. true = marked.
+        // The first one copies the list. The second one takes it over, without a copy.
         // Throws std::invalid_argument if the list does not have rows * cols cells.
         Grid(int rows, int cols, const std::vector<bool>& cells);
+        Grid(int rows, int cols, std::vector<bool>&& cells);
 
         // The functions below are called for every cell.
         // They are defined here, in the header, so the compiler can inline them.
@@ -52,6 +54,9 @@ namespace figures
         }
 
     private:
+        // Throws std::invalid_argument if the number of cells is not rows * cols.
+        void checkCellCount() const;
+
         // Is (row, col) inside the grid?
         bool contains(int row, int col) const
         {

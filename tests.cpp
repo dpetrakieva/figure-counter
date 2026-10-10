@@ -1,7 +1,9 @@
 #include "FigureCounter.h"
 #include "Grid.h"
+#include "GridReader.h"
 
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -14,6 +16,22 @@ struct TestCase
     std::string name;
     Grid grid;
     std::size_t expected;
+};
+
+// One read test: a name, the input text, and the expected number of figures.
+struct ReadCase
+{
+    std::string name;
+    std::string text;
+    std::size_t expected;
+};
+
+// One invalid input: a name, the input text, and the expected error message.
+struct InvalidCase
+{
+    std::string name;
+    std::string text;
+    std::string expectedMessage;
 };
 
 // Makes a grid from rows written one under another. 1 = marked cell.
@@ -151,6 +169,87 @@ int runCountTests()
     return failedCount;
 }
 
+// Checks that readGrid reads a grid from text correctly.
+// Returns the number of failed tests.
+int runReadTests()
+{
+    const std::vector<ReadCase> testCases =
+    {
+        { "task example as text",    "*....\n*.**.\n.*.*.\n.***.\n....*\n", 3 },
+        { "empty text",              "",                                    0 },
+        { "Windows line endings",    "*.\r\n.*\r\n",                        2 },
+        { "no newline at the end",   "**\n..",                              1 },
+        { "one row",                 "*.*\n",                               2 },
+    };
+
+    int failedCount = 0;
+
+    for (const ReadCase& testCase : testCases)
+    {
+        std::istringstream input(testCase.text);
+        const std::size_t actual = countFigures(readGrid(input));
+
+        if (actual == testCase.expected)
+        {
+            std::cout << "PASS: " << testCase.name << std::endl;
+        }
+        else
+        {
+            std::cout << "FAIL: " << testCase.name
+                      << " (expected " << testCase.expected
+                      << ", got " << actual << ")" << std::endl;
+
+            failedCount++;
+        }
+    }
+
+    return failedCount;
+}
+
+// Checks that invalid input is rejected.
+// Returns the number of failed tests.
+int runInvalidInputTests()
+{
+    const std::vector<InvalidCase> testCases =
+    {
+        { "unexpected character",  "*.\n*x\n",  "Unexpected character at row 2, column 2." },
+        { "second row is shorter", "*.*\n*.\n", "Row 2 has a different length than the first row." },
+        { "second row is longer",  "*.\n*.*\n", "Row 2 has a different length than the first row." },
+        { "first row is empty",    "\n*\n",     "Row 2 has a different length than the first row." },
+    };
+
+    int failedCount = 0;
+
+    for (const InvalidCase& testCase : testCases)
+    {
+        std::istringstream input(testCase.text);
+
+        try
+        {
+            readGrid(input);
+
+            std::cout << "FAIL: " << testCase.name << " (no exception)" << std::endl;
+            failedCount++;
+        }
+        catch (const std::invalid_argument& error)
+        {
+            if (error.what() == testCase.expectedMessage)
+            {
+                std::cout << "PASS: " << testCase.name << std::endl;
+            }
+            else
+            {
+                std::cout << "FAIL: " << testCase.name
+                          << " (wrong message: " << error.what() << ")" << std::endl;
+
+                failedCount++;
+            }
+        }
+    }
+
+    return failedCount;
+}
+
 // Checks what a grid does with wrong arguments.
 // Returns the number of failed tests.
 int runGridTests()
@@ -205,7 +304,7 @@ int runGridTests()
 
 int main()
 {
-    const int failedCount = runCountTests() + runGridTests();
+    const int failedCount = runCountTests() + runReadTests() + runInvalidInputTests() + runGridTests();
 
     return (failedCount == 0) ? 0 : 1;
 }

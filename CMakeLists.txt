@@ -12,9 +12,9 @@ else()
 endif()
 
 # The logic, as a library used by both programs below.
-add_library(figure_counter FigureCounter.cpp Grid.cpp)
+add_library(figure_counter FigureCounter.cpp Grid.cpp GridReader.cpp)
 
-# The program: prints the result for the example from the task.
+# The program: reads a grid from a file and prints the number of figures.
 add_executable(figure_counter_app main.cpp)
 target_link_libraries(figure_counter_app PRIVATE figure_counter)
 

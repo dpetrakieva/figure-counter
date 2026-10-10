@@ -1,6 +1,7 @@
 #include "Grid.h"
 
 #include <stdexcept>
+#include <utility>
 
 namespace figures
 {
@@ -31,7 +32,20 @@ namespace figures
           m_cols(cols),
           m_cells(cells)
     {
-        if (m_cells.size() != cellCount(rows, cols))
+        checkCellCount();
+    }
+
+    Grid::Grid(int rows, int cols, std::vector<bool>&& cells)
+        : m_rows(rows),
+          m_cols(cols),
+          m_cells(std::move(cells))
+    {
+        checkCellCount();
+    }
+
+    void Grid::checkCellCount() const
+    {
+        if (m_cells.size() != cellCount(m_rows, m_cols))
         {
             throw std::invalid_argument("The number of cells must be rows * cols.");
         }
