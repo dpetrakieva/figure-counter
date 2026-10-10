@@ -12,7 +12,7 @@ else()
 endif()
 
 # The logic, as a library used by both programs below.
-add_library(figure_counter FigureCounter.cpp Grid.cpp GridReader.cpp)
+add_library(figure_counter STATIC FigureCounter.cpp Grid.cpp GridReader.cpp)
 
 # The program: reads a grid from a file and prints the number of figures.
 add_executable(figure_counter_app main.cpp)
