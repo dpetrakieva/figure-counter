@@ -1,5 +1,6 @@
 #include "Grid.h"
 
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -14,6 +15,13 @@ namespace figures
             if (rows < 0 || cols < 0)
             {
                 throw std::invalid_argument("The number of rows and columns cannot be negative.");
+            }
+
+            // rows * cols must fit in std::size_t. On a 32-bit build it may not.
+            if (cols != 0 &&
+                static_cast<std::size_t>(rows) > std::numeric_limits<std::size_t>::max() / static_cast<std::size_t>(cols))
+            {
+                throw std::invalid_argument("The grid is too big.");
             }
 
             return static_cast<std::size_t>(rows) * cols;

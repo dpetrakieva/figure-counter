@@ -1,5 +1,6 @@
 #include "GridReader.h"
 
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -24,6 +25,12 @@ namespace figures
 
         while (std::getline(input, line))
         {
+            // The row count is an int. Stop before it gets too big.
+            if (rows == std::numeric_limits<int>::max())
+            {
+                throw std::invalid_argument("The grid has too many rows.");
+            }
+
             // A file saved on Windows ends each line with "\r\n". Remove the '\r'.
             if (!line.empty() && line.back() == '\r')
             {
@@ -32,6 +39,12 @@ namespace figures
 
             // Row and column numbers in the messages start from 1.
             const int rowNumber = rows + 1;
+
+            // The length is kept in an int below. Check that it fits.
+            if (line.size() > static_cast<std::size_t>(std::numeric_limits<int>::max()))
+            {
+                throw std::invalid_argument("Row " + std::to_string(rowNumber) + " is too long.");
+            }
 
             const int length = static_cast<int>(line.size());
 

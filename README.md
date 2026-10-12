@@ -64,6 +64,7 @@ The input is a text file. Each line is one row of the matrix.
 Lines can end the Windows way (`\r\n`) or the Unix way (`\n`).
 The last line does not need a line ending.
 An empty line is a row with no cells, so an empty line after the last row is an error.
+The file must not start with a byte order mark (BOM).
 
 `example_16_figures.txt` is a larger example:
 
@@ -94,6 +95,8 @@ If something is wrong, the program prints one of these messages:
 | The file cannot be read | `Error: Cannot read the input.` |
 | A character other than `*` or `.` | `Invalid input: Unexpected character at row <r>, column <c>.` |
 | Rows with different lengths | `Invalid input: Row <r> has a different length than the first row.` |
+| A row longer than the largest `int` | `Invalid input: Row <r> is too long.` |
+| More rows than the largest `int` | `Invalid input: The grid has too many rows.` |
 | Not enough memory for the grid | `Not enough memory for this grid.` |
 | Any other error | `Error: <message>` |
 
@@ -219,7 +222,9 @@ Its input file is 25 MB, so it is not in the repository.
 - **`int` for row and column, `std::size_t` for counts and indexes.** Row and column can
   become `-1` when looking at a neighbor, so they are signed. The number of cells and the
   number of figures can be larger than an `int`, so they are `std::size_t`.
-  This limits each side of the grid to the largest `int`.
+  This limits each side of the grid to the largest `int`. The reader checks the row count
+  and the row length before it stores them in an `int`, so a larger input gives an error
+  instead of a wrong result.
 - **Plain text input with `*` and `.`.** The figures are easy to see, also in a larger
   grid. The file is easy to write by hand and needs no extra library to read.
   The two characters are named constants in `GridReader.cpp`.
